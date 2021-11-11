@@ -318,6 +318,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     protected void run() {
         for (;;) {
             try {
+                // 看线程池队列中是否有任务，有任务就调selectNow()立即查询不阻塞返回就绪的事件数量
+                // 如果线程池队列中没有任务，就返回SelectStrategy.SELECT，进行阻塞式select
                 switch (selectStrategy.calculateStrategy(selectNowSupplier, hasTasks())) {
                     case SelectStrategy.CONTINUE:
                         continue;
@@ -361,6 +363,11 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
                 cancelledKeys = 0;
                 needsToSelectAgain = false;
+                // 是此线程分配给 IO 操作所占的时间比(即运行 processSelectedKeys 耗时在整个循环中所占用的时间).
+                // 例如 ioRatio 默认是 50, 则表示 IO 操作和执行 task 的所占用的线程执行时间比是 1 : 1.
+                // 根据上面的公式, 当我们设置 ioRate = 70 时, 则表示 IO 运行耗时占比为70%,
+                // 即假设某次循环一共耗时为 100ms, 那么根据公式,
+                // 我们知道 processSelectedKeys() 方法调用所耗时大概为70ms(即 IO 耗时), 而 runAllTasks() 耗时大概为 30ms(即执行 task 耗时).
                 final int ioRatio = this.ioRatio;
                 if (ioRatio == 100) {
                     processSelectedKeys();
@@ -395,6 +402,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKeys() {
+        // selectedKeys优化的
         if (selectedKeys != null) {
             processSelectedKeysOptimized(selectedKeys.flip());
         } else {
@@ -444,6 +452,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             i.remove();
 
             if (a instanceof AbstractNioChannel) {
+                //
                 processSelectedKey(k, (AbstractNioChannel) a);
             } else {
                 @SuppressWarnings("unchecked")
@@ -540,6 +549,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             int readyOps = k.readyOps();
             // Also check for readOps of 0 to workaround possible JDK bug which may otherwise lead
             // to a spin loop
+            // 可读事件 即 Channel 中收到了新数据可供上层读取.
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
                 unsafe.read();
                 if (!ch.isOpen()) {
@@ -547,11 +557,14 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     return;
                 }
             }
+            // 可写事件 即上层可以向 Channel 写入数据.
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 // Call forceFlush which will also take care of clear the OP_WRITE once there is nothing left to write
                 ch.unsafe().forceFlush();
             }
+            // 连接建立事件  即 TCP 连接已经建立, Channel 处于 active 状态.
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+                // 正如代码中的注释所言, 我们需要将 OP_CONNECT 从就绪事件集中清除, 不然会一直有 OP_CONNECT 事件.
                 // remove OP_CONNECT as otherwise Selector.select(..) will always return without blocking
                 // See https://github.com/netty/netty/issues/924
                 int ops = k.interestOps();
