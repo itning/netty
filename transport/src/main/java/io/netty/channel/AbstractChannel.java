@@ -548,6 +548,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
             boolean wasActive = isActive();
             try {
+                // 开启绑定
                 doBind(localAddress);
             } catch (Throwable t) {
                 safeSetFailure(promise, t);
@@ -559,6 +560,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 invokeLater(new OneTimeTask() {
                     @Override
                     public void run() {
+                        // 这里发布事件
                         pipeline.fireChannelActive();
                     }
                 });
