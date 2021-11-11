@@ -279,6 +279,7 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     }
 
     private ChannelFuture doBind(final SocketAddress localAddress) {
+        // 反射NioServerSocketChannel 并实例化
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
         if (regFuture.cause() != null) {
@@ -315,8 +316,13 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     }
 
     final ChannelFuture initAndRegister() {
+        // 创建channel，反射获取一个channel实例
+        // io.netty.channel.socket.nio.NioSocketChannel
+        // io.netty.channel.socket.nio.NioServerSocketChannel
+        // 在 newChannel 中, 通过类对象的 newInstance 来获取一个新 Channel 实例, 因而会调用NioSocketChannel 的默认构造器.
         final Channel channel = channelFactory.newChannel();
         try {
+            // 初始化 && pipeline.add
             init(channel);
         } catch (Throwable t) {
             channel.unsafe().closeForcibly();
@@ -324,6 +330,12 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
             return new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE).setFailure(t);
         }
 
+        //  Channel 注册过程所做的工作就是将 Channel 与对应的 EventLoop 关联,
+        //  因此这也体现了, 在 Netty 中, 每个 Channel 都会关联一个特定的 EventLoop,
+        //  并且这个 Channel 中的所有 IO 操作都是在这个 EventLoop 中执行的;
+        //  当关联好 Channel 和 EventLoop 后, 会继续调用底层的 Java NIO SocketChannel 的 register 方法,
+        //  将底层的 Java NIO SocketChannel 注册到指定的 selector 中.
+        //  通过这两步, 就完成了 Netty Channel 的注册过程.
         ChannelFuture regFuture = group().register(channel);
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {

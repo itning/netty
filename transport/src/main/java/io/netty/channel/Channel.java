@@ -22,10 +22,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.AttributeMap;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.FutureListener;
 
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -93,7 +90,7 @@ public interface Channel extends AttributeMap, ChannelOutboundInvoker, Comparabl
      * Returns the parent of this channel.
      *
      * @return the parent channel.
-     *         {@code null} if this channel does not have a parent channel.
+     * {@code null} if this channel does not have a parent channel.
      */
     Channel parent();
 
@@ -129,7 +126,7 @@ public interface Channel extends AttributeMap, ChannelOutboundInvoker, Comparabl
      * information.
      *
      * @return the local address of this channel.
-     *         {@code null} if this channel is not bound.
+     * {@code null} if this channel is not bound.
      */
     SocketAddress localAddress();
 
@@ -140,12 +137,12 @@ public interface Channel extends AttributeMap, ChannelOutboundInvoker, Comparabl
      * information.
      *
      * @return the remote address of this channel.
-     *         {@code null} if this channel is not connected.
-     *         If this channel is not connected but it can receive messages
-     *         from arbitrary remote addresses (e.g. {@link DatagramChannel},
-     *         use {@link DatagramPacket#recipient()} to determine
-     *         the origination of the received message as this method will
-     *         return {@code null}.
+     * {@code null} if this channel is not connected.
+     * If this channel is not connected but it can receive messages
+     * from arbitrary remote addresses (e.g. {@link DatagramChannel},
+     * use {@link DatagramPacket#recipient()} to determine
+     * the origination of the received message as this method will
+     * return {@code null}.
      */
     SocketAddress remoteAddress();
 
@@ -209,6 +206,7 @@ public interface Channel extends AttributeMap, ChannelOutboundInvoker, Comparabl
      *   <li>{@link #deregister(ChannelPromise)}</li>
      *   <li>{@link #voidPromise()}</li>
      * </ul>
+     * 封装了对 Java 底层 Socket 的操作, 因此实际上是沟通 Netty 上层和 Java 底层的重要的桥梁.
      */
     interface Unsafe {
 
@@ -246,7 +244,7 @@ public interface Channel extends AttributeMap, ChannelOutboundInvoker, Comparabl
          * Connect the {@link Channel} of the given {@link ChannelFuture} with the given remote {@link SocketAddress}.
          * If a specific local {@link SocketAddress} should be used it need to be given as argument. Otherwise just
          * pass {@code null} to it.
-         *
+         * <p>
          * The {@link ChannelPromise} will get notified once the connect operation was complete.
          */
         void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise);

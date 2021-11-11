@@ -15,7 +15,7 @@
  */
 package io.netty.handler.codec.dns;
 
-import io.netty.util.collection.IntObjectHashMap;
+//import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.internal.UnstableApi;
 
 import java.util.HashMap;
@@ -304,7 +304,7 @@ public class DnsRecordType implements Comparable<DnsRecordType> {
     public static final DnsRecordType DLV = new DnsRecordType(0x8001, "DLV");
 
     private static final Map<String, DnsRecordType> BY_NAME = new HashMap<String, DnsRecordType>();
-    private static final IntObjectHashMap<DnsRecordType> BY_TYPE = new IntObjectHashMap<DnsRecordType>();
+   // private static final IntObjectHashMap<DnsRecordType> BY_TYPE = new IntObjectHashMap<DnsRecordType>();
     private static final String EXPECTED;
 
     static {
@@ -319,7 +319,7 @@ public class DnsRecordType implements Comparable<DnsRecordType> {
         expected.append(" (expected: ");
         for (DnsRecordType type: all) {
             BY_NAME.put(type.name(), type);
-            BY_TYPE.put(type.intValue(), type);
+         //   BY_TYPE.put(type.intValue(), type);
 
             expected.append(type.name())
                     .append('(')
@@ -333,11 +333,12 @@ public class DnsRecordType implements Comparable<DnsRecordType> {
     }
 
     public static DnsRecordType valueOf(int intValue) {
-        DnsRecordType result = BY_TYPE.get(intValue);
-        if (result == null) {
-            return new DnsRecordType(intValue);
-        }
-        return result;
+       // DnsRecordType result = BY_TYPE.get(intValue);
+      //  if (result == null) {
+       //     return new DnsRecordType(intValue);
+     //   }
+       // return result;
+        return null;
     }
 
     public static DnsRecordType valueOf(String name) {

@@ -17,8 +17,8 @@
 package io.netty.resolver.dns;
 
 import io.netty.util.NetUtil;
-import io.netty.util.collection.IntObjectHashMap;
-import io.netty.util.collection.IntObjectMap;
+//import io.netty.util.collection.IntObjectHashMap;
+//import io.netty.util.collection.IntObjectMap;
 import io.netty.util.internal.ThreadLocalRandom;
 
 import java.net.Inet4Address;
@@ -35,96 +35,98 @@ final class DnsQueryContextManager {
      * A map whose key is the DNS server address and value is the map of the DNS query ID and its corresponding
      * {@link DnsQueryContext}.
      */
-    final Map<InetSocketAddress, IntObjectMap<DnsQueryContext>> map =
-            new HashMap<InetSocketAddress, IntObjectMap<DnsQueryContext>>();
+//    final Map<InetSocketAddress, IntObjectMap<DnsQueryContext>> map =
+//            new HashMap<InetSocketAddress, IntObjectMap<DnsQueryContext>>();
 
     int add(DnsQueryContext qCtx) {
-        final IntObjectMap<DnsQueryContext> contexts = getOrCreateContextMap(qCtx.nameServerAddr());
-
-        int id = ThreadLocalRandom.current().nextInt(1, 65536);
-        final int maxTries = 65535 << 1;
-        int tries = 0;
-
-        synchronized (contexts) {
-            for (;;) {
-                if (!contexts.containsKey(id)) {
-                    contexts.put(id, qCtx);
-                    return id;
-                }
-
-                id = id + 1 & 0xFFFF;
-
-                if (++tries >= maxTries) {
-                    throw new IllegalStateException("query ID space exhausted: " + qCtx.question());
-                }
-            }
-        }
+//        final IntObjectMap<DnsQueryContext> contexts = getOrCreateContextMap(qCtx.nameServerAddr());
+//
+//        int id = ThreadLocalRandom.current().nextInt(1, 65536);
+//        final int maxTries = 65535 << 1;
+//        int tries = 0;
+//
+//        synchronized (contexts) {
+//            for (;;) {
+//                if (!contexts.containsKey(id)) {
+//                    contexts.put(id, qCtx);
+//                    return id;
+//                }
+//
+//                id = id + 1 & 0xFFFF;
+//
+//                if (++tries >= maxTries) {
+//                    throw new IllegalStateException("query ID space exhausted: " + qCtx.question());
+//                }
+//            }
+//        }
+        return 0;
     }
 
     DnsQueryContext get(InetSocketAddress nameServerAddr, int id) {
-        final IntObjectMap<DnsQueryContext> contexts = getContextMap(nameServerAddr);
-        final DnsQueryContext qCtx;
-        if (contexts != null) {
-            synchronized (contexts) {
-                qCtx = contexts.get(id);
-            }
-        } else {
-            qCtx = null;
-        }
+       // final IntObjectMap<DnsQueryContext> contexts = getContextMap(nameServerAddr);
+        final DnsQueryContext qCtx = null;
+//        if (contexts != null) {
+//            synchronized (contexts) {
+//                qCtx = contexts.get(id);
+//            }
+//        } else {
+//            qCtx = null;
+//        }
 
         return qCtx;
     }
 
     DnsQueryContext remove(InetSocketAddress nameServerAddr, int id) {
-        final IntObjectMap<DnsQueryContext> contexts = getContextMap(nameServerAddr);
-        if (contexts == null) {
-            return null;
-        }
-
-        synchronized (contexts) {
-            return  contexts.remove(id);
-        }
+//        final IntObjectMap<DnsQueryContext> contexts = getContextMap(nameServerAddr);
+//        if (contexts == null) {
+//            return null;
+//        }
+//
+//        synchronized (contexts) {
+//            return  contexts.remove(id);
+//        }
+        return null;
     }
 
-    private IntObjectMap<DnsQueryContext> getContextMap(InetSocketAddress nameServerAddr) {
-        synchronized (map) {
-            return map.get(nameServerAddr);
-        }
-    }
+//    private IntObjectMap<DnsQueryContext> getContextMap(InetSocketAddress nameServerAddr) {
+//        synchronized (map) {
+//            return map.get(nameServerAddr);
+//        }
+//    }
 
-    private IntObjectMap<DnsQueryContext> getOrCreateContextMap(InetSocketAddress nameServerAddr) {
-        synchronized (map) {
-            final IntObjectMap<DnsQueryContext> contexts = map.get(nameServerAddr);
-            if (contexts != null) {
-                return contexts;
-            }
-
-            final IntObjectMap<DnsQueryContext> newContexts = new IntObjectHashMap<DnsQueryContext>();
-            final InetAddress a = nameServerAddr.getAddress();
-            final int port = nameServerAddr.getPort();
-            map.put(nameServerAddr, newContexts);
-
-            if (a instanceof Inet4Address) {
-                // Also add the mapping for the IPv4-compatible IPv6 address.
-                final Inet4Address a4 = (Inet4Address) a;
-                if (a4.isLoopbackAddress()) {
-                    map.put(new InetSocketAddress(NetUtil.LOCALHOST6, port), newContexts);
-                } else {
-                    map.put(new InetSocketAddress(toCompatAddress(a4), port), newContexts);
-                }
-            } else if (a instanceof Inet6Address) {
-                // Also add the mapping for the IPv4 address if this IPv6 address is compatible.
-                final Inet6Address a6 = (Inet6Address) a;
-                if (a6.isLoopbackAddress()) {
-                    map.put(new InetSocketAddress(NetUtil.LOCALHOST4, port), newContexts);
-                } else if (a6.isIPv4CompatibleAddress()) {
-                    map.put(new InetSocketAddress(toIPv4Address(a6), port), newContexts);
-                }
-            }
-
-            return newContexts;
-        }
-    }
+//    private IntObjectMap<DnsQueryContext> getOrCreateContextMap(InetSocketAddress nameServerAddr) {
+//        synchronized (map) {
+//            final IntObjectMap<DnsQueryContext> contexts = map.get(nameServerAddr);
+//            if (contexts != null) {
+//                return contexts;
+//            }
+//
+//            final IntObjectMap<DnsQueryContext> newContexts = new IntObjectHashMap<DnsQueryContext>();
+//            final InetAddress a = nameServerAddr.getAddress();
+//            final int port = nameServerAddr.getPort();
+//            map.put(nameServerAddr, newContexts);
+//
+//            if (a instanceof Inet4Address) {
+//                // Also add the mapping for the IPv4-compatible IPv6 address.
+//                final Inet4Address a4 = (Inet4Address) a;
+//                if (a4.isLoopbackAddress()) {
+//                    map.put(new InetSocketAddress(NetUtil.LOCALHOST6, port), newContexts);
+//                } else {
+//                    map.put(new InetSocketAddress(toCompatAddress(a4), port), newContexts);
+//                }
+//            } else if (a instanceof Inet6Address) {
+//                // Also add the mapping for the IPv4 address if this IPv6 address is compatible.
+//                final Inet6Address a6 = (Inet6Address) a;
+//                if (a6.isLoopbackAddress()) {
+//                    map.put(new InetSocketAddress(NetUtil.LOCALHOST4, port), newContexts);
+//                } else if (a6.isIPv4CompatibleAddress()) {
+//                    map.put(new InetSocketAddress(toIPv4Address(a6), port), newContexts);
+//                }
+//            }
+//
+//            return newContexts;
+//        }
+//    }
 
     private static Inet6Address toCompatAddress(Inet4Address a4) {
         byte[] b4 = a4.getAddress();

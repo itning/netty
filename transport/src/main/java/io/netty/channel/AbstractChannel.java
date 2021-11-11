@@ -74,8 +74,14 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
      */
     protected AbstractChannel(Channel parent) {
         this.parent = parent;
+        // 表示Channel的全局唯一标识符。
+        // TODO ITNING: 2021/11/11 有啥用？
         id = newId();
+        // 实例化一个 unsafe 对象, 它的类型是 AbstractNioByteChannel.NioByteUnsafe 内部类
+        // unsafe 特别关键, 它封装了对 Java 底层 Socket 的操作, 因此实际上是沟通 Netty 上层和 Java 底层的重要的桥梁.
         unsafe = newUnsafe();
+        // new DefaultChannelPipeline(this) 新创建的实例
+        // 每一个channel都有自己的pipeline
         pipeline = newChannelPipeline();
     }
 
@@ -462,6 +468,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             AbstractChannel.this.eventLoop = eventLoop;
 
             if (eventLoop.inEventLoop()) {
+                // 注册
                 register0(promise);
             } else {
                 try {
@@ -490,6 +497,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                     return;
                 }
                 boolean firstRegistration = neverRegistered;
+                //
                 doRegister();
                 neverRegistered = false;
                 registered = true;

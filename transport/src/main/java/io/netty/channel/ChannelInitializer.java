@@ -65,7 +65,9 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
     @Override
     @SuppressWarnings("unchecked")
     public final void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        // 添加
         initChannel((C) ctx.channel());
+        // 移除自己
         ctx.pipeline().remove(this);
         ctx.pipeline().fireChannelRegistered();
     }

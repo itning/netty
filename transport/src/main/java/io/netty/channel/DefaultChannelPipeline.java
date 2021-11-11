@@ -84,14 +84,21 @@ public class DefaultChannelPipeline implements ChannelPipeline {
      */
     private boolean registered;
 
+    /**
+     * 处理器链构造器
+     */
     protected DefaultChannelPipeline(Channel channel) {
         this.channel = ObjectUtil.checkNotNull(channel, "channel");
         succeededFuture = new SucceededChannelFuture(channel, null);
         voidPromise =  new VoidChannelPromise(channel, true);
-
+        // 链表尾部
+        // 实现了ChannelInboundHandler入站处理器
         tail = new TailContext(this);
+        // 链表头部
+        // 既是ChannelOutboundHandler出站处理器也是ChannelInboundHandler入站处理器
         head = new HeadContext(this);
 
+        // 头尾相连
         head.next = tail;
         tail.prev = head;
     }
@@ -193,6 +200,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         final EventExecutor executor;
         final AbstractChannelHandlerContext newCtx;
         synchronized (this) {
+            // 检查非共享的是否添加过了
             checkMultiplicity(handler);
 
             newCtx = newContext(group, filterName(name, handler), handler);
@@ -283,6 +291,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         if (name == null) {
             return generateName(handler);
         }
+        // 名称重复检查
         checkDuplicateName(name);
         return name;
     }
@@ -392,6 +401,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         Class<?> handlerType = handler.getClass();
         String name = cache.get(handlerType);
         if (name == null) {
+            // simpleClassName+#0
             name = generateName0(handlerType);
             cache.put(handlerType, name);
         }
@@ -578,6 +588,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private static void checkMultiplicity(ChannelHandler handler) {
         if (handler instanceof ChannelHandlerAdapter) {
             ChannelHandlerAdapter h = (ChannelHandlerAdapter) handler;
+            // 非Sharable共享的并且已经添加过了
             if (!h.isSharable() && h.added) {
                 throw new ChannelPipelineException(
                         h.getClass().getName() +
@@ -1169,6 +1180,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     final class TailContext extends AbstractChannelHandlerContext implements ChannelInboundHandler {
 
         TailContext(DefaultChannelPipeline pipeline) {
+            // 调父类 inbound为true
             super(pipeline, null, TAIL_NAME, true, false);
             setAdded();
         }
@@ -1227,6 +1239,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         private boolean firstRegistration = true;
 
         HeadContext(DefaultChannelPipeline pipeline) {
+            // 调父类 outbound为true
             super(pipeline, null, HEAD_NAME, false, true);
             unsafe = pipeline.channel().unsafe();
             setAdded();

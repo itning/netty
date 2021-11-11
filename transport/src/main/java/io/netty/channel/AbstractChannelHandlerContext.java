@@ -510,7 +510,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
             // cancelled
             return promise;
         }
-
+        // 从尾节点找到第一个outbound为true的
         final AbstractChannelHandlerContext next = findContextOutbound();
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
@@ -529,6 +529,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
     private void invokeConnect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
         if (isAdded()) {
             try {
+                // io.netty.channel.DefaultChannelPipeline.HeadContext.connect
                 ((ChannelOutboundHandler) handler()).connect(this, remoteAddress, localAddress, promise);
             } catch (Throwable t) {
                 notifyOutboundHandlerException(t, promise);

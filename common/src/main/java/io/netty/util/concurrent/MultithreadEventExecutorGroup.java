@@ -63,9 +63,11 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         if (executor == null) {
             executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
         }
-
+        // 没用java自带的线程池 自己实现了
         children = new EventExecutor[nThreads];
         if (isPowerOfTwo(children.length)) {
+            // nThreads 是 2 的幂
+            // 目的是从 children 数组中选出一个合适的 EventExecutor 实例
             chooser = new PowerOfTwoEventExecutorChooser();
         } else {
             chooser = new GenericEventExecutorChooser();
@@ -74,6 +76,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         for (int i = 0; i < nThreads; i ++) {
             boolean success = false;
             try {
+                // 会new NioEventLoop()
                 children[i] = newChild(executor, args);
                 success = true;
             } catch (Exception e) {

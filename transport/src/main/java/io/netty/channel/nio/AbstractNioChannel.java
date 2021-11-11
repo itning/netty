@@ -84,10 +84,13 @@ public abstract class AbstractNioChannel extends AbstractChannel {
      * @param readInterestOp    the ops to set to receive data from the {@link SelectableChannel}
      */
     protected AbstractNioChannel(Channel parent, SelectableChannel ch, int readInterestOp) {
+        // 客户端= readInterestOp = SelectionKey.OP_READ
+        // 服务端= readInterestOp = SelectionKey.OP_ACCEPT
         super(parent);
         this.ch = ch;
         this.readInterestOp = readInterestOp;
         try {
+            // 配置非阻塞的
             ch.configureBlocking(false);
         } catch (IOException e) {
             try {
@@ -253,6 +256,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
                 }
 
                 boolean wasActive = isActive();
+                // doConnect
                 if (doConnect(remoteAddress, localAddress)) {
                     fulfillConnectPromise(promise, wasActive);
                 } else {

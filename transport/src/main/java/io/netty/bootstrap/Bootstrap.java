@@ -159,6 +159,7 @@ public class Bootstrap extends AbstractBootstrap<Bootstrap, Channel> {
      * @see {@link #connect()}
      */
     private ChannelFuture doResolveAndConnect(final SocketAddress remoteAddress, final SocketAddress localAddress) {
+        // 初始化并注册
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
 
@@ -258,6 +259,7 @@ public class Bootstrap extends AbstractBootstrap<Bootstrap, Channel> {
     @SuppressWarnings("unchecked")
     void init(Channel channel) throws Exception {
         ChannelPipeline p = channel.pipeline();
+        // 将handler添加到pipeline中
         p.addLast(config.handler());
 
         final Map<ChannelOption<?>, Object> options = options0();
