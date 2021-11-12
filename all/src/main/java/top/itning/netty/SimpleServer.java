@@ -7,6 +7,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 /**
@@ -43,7 +44,7 @@ public class SimpleServer {
                     // ServerSocketChannel以NIO的selector为基础进行实现的，用来接收新的连接
                     // 这里告诉Channel如何获取新的连接.
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler())
+                    .handler(new LoggingHandler(LogLevel.WARN))
                     // 这里的事件处理类经常会被用来处理一个最近的已经接收的Channel。
                     // ChannelInitializer是一个特殊的处理类，
                     // 他的目的是帮助使用者配置一个新的Channel。
@@ -54,6 +55,7 @@ public class SimpleServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
+                            ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                             ch.pipeline().addLast(new SimpleServerHandler());
                         }
                     })

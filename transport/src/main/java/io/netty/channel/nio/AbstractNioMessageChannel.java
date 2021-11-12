@@ -72,6 +72,7 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
             try {
                 try {
                     do {
+                        // 读取消息到readBuf中
                         int localRead = doReadMessages(readBuf);
                         if (localRead == 0) {
                             break;
