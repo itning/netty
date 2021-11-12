@@ -89,6 +89,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
      */
     protected DefaultChannelPipeline(Channel channel) {
         this.channel = ObjectUtil.checkNotNull(channel, "channel");
+        // TODO ITNING: 2021/11/12 创建啥功能
         succeededFuture = new SucceededChannelFuture(channel, null);
         voidPromise =  new VoidChannelPromise(channel, true);
         // 链表尾部
@@ -1182,6 +1183,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         TailContext(DefaultChannelPipeline pipeline) {
             // 调父类 inbound为true
             super(pipeline, null, TAIL_NAME, true, false);
+            // 设置添加标记
             setAdded();
         }
 
@@ -1241,7 +1243,9 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         HeadContext(DefaultChannelPipeline pipeline) {
             // 调父类 outbound为true
             super(pipeline, null, HEAD_NAME, false, true);
+            // 持有unsafe
             unsafe = pipeline.channel().unsafe();
+            // 设置添加标记
             setAdded();
         }
 

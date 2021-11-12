@@ -43,6 +43,9 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
 public class DefaultChannelConfig implements ChannelConfig {
     private static final MessageSizeEstimator DEFAULT_MSG_SIZE_ESTIMATOR = DefaultMessageSizeEstimator.DEFAULT;
 
+    /**
+     * 默认连接超时30秒
+     */
     private static final int DEFAULT_CONNECT_TIMEOUT = 30000;
 
     private static final AtomicIntegerFieldUpdater<DefaultChannelConfig> AUTOREAD_UPDATER;

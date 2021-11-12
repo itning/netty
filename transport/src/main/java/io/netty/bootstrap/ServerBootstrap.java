@@ -140,6 +140,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
 
     @Override
     void init(Channel channel) throws Exception {
+        // 一些配置进行设置
         final Map<ChannelOption<?>, Object> options = options0();
         synchronized (options) {
             channel.config().setOptions(options);
@@ -167,14 +168,18 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
             currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(childAttrs.size()));
         }
 
+        // 增加个节点
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(Channel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
+                // boss handler : .handler(new LoggingHandler())
                 ChannelHandler handler = config.handler();
                 if (handler != null) {
                     pipeline.addLast(handler);
                 }
+                // 当有accept连接事件发生的时候，会执行此pipeLine管道
+                // 持有了child的相关引用 负责IO事件轮询和任务执行
                 ServerBootstrapAcceptor serverBootstrapAcceptor = new ServerBootstrapAcceptor(
                         currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs);
                 pipeline.addLast(serverBootstrapAcceptor);
@@ -215,7 +220,9 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         ServerBootstrapAcceptor(
                 EventLoopGroup childGroup, ChannelHandler childHandler,
                 Entry<ChannelOption<?>, Object>[] childOptions, Entry<AttributeKey<?>, Object>[] childAttrs) {
+            // 子轮询器
             this.childGroup = childGroup;
+            // 子处理器
             this.childHandler = childHandler;
             this.childOptions = childOptions;
             this.childAttrs = childAttrs;
