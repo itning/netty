@@ -15,6 +15,11 @@ import io.netty.util.ReferenceCountUtil;
  */
 public class SimpleServerHandler extends ChannelInboundHandlerAdapter {
     @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        super.handlerAdded(ctx);
+    }
+
+    @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
     }

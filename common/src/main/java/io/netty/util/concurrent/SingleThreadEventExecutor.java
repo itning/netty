@@ -299,6 +299,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
      * @return {@code true} if and only if at least one task was run
      */
     protected boolean runAllTasks() {
+        // 取定时任务
         fetchFromScheduledTaskQueue();
         Runnable task = pollTask();
         if (task == null) {
