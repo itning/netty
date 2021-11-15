@@ -8,6 +8,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 简单服务端规则处理器
  *
@@ -56,6 +58,13 @@ public class SimpleServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        System.out.println(Thread.currentThread().getName());
+        try {
+            TimeUnit.SECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return;
+        }
         try {
             System.out.println(msg.getClass().getName());
             ByteBuf in = (ByteBuf) msg;
